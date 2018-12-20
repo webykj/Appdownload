@@ -34,6 +34,20 @@
 		    window.location="https://xiuqiangpublic.oss-cn-hangzhou.aliyuncs.com/APK/behalo-teacher-3.2.apk";//教师
 	    } 
 		
+		
+		function isWechat() { 
+  var ua = navigator.userAgent.toLowerCase(),flag = false; 
+  // if(ua.match(/MicroMessenger/i) === "micromessenger"){ 
+  if(ua.indexOf("micromessenger") > -1){ 
+    flag = true; 
+  }else { 
+    flag = false; 
+  } 
+  return flag; 
+}
+
+isWechat();
+		alert(flag);
 	    
 
 

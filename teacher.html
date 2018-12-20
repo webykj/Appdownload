@@ -39,30 +39,18 @@
 		    document.getElementById('weixin-tip').style.display = 'block';
 	    } 
 		
-
-	    function IsWeixinOrAlipay(){
-
-    var ua = window.navigator.userAgent.toLowerCase();
-    //判断是不是微信
-    if ( ua.indexOf("MicroMessenger") > 0 ) {  
-           alert('weixin)
-	    return "WeiXIN";  
-    }    
-    //判断是不是支付宝
-    if ua.indexOf("Alipayclient") > 0'') {
-        return "Alipay";  
-    }
-    //哪个都不是
-    return "false";
-}
-IsWeixinOrAlipay();
-
-
+		if (/MicroMessenger/.test(window.navigator.userAgent)) { 
+		    alert('微信客户端'); 
+		} else if (/AlipayClient/.test(window.navigator.userAgent)) { 
+		    alert('支付宝客户端');
+		} else {
+		    alert('其他浏览器');
+		}
 
 
         </script>  
     </head>  
     <body>  
-	<div id="weixin-tip"></div>
+	<div id="weixin-tip">122</div>
     </body>  
 </html> 

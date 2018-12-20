@@ -25,10 +25,10 @@
                 }(),  
                 language: (navigator.browserLanguage || navigator.language).toLowerCase()  
             }  
-
+		var is_weixin = (function(){return navigator.userAgent.toLowerCase().indexOf('micromessenger') !== -1})();
             if (browser.versions.ios || browser.versions.iPhone || browser.versions.iPad) { 
               	window.location="https://itunes.apple.com/cn/app/%E7%BE%8E%E4%B9%90%E7%88%B1%E5%9B%AD%E9%95%BF%E7%AB%AF/id1436005363?mt=8";  //园长
-            } else if (browser.versions.android) {  
+            } else if (browser.versions.android && is_weixin) {  
 	   	window.location="https://xiuqiangpublic.oss-cn-hangzhou.aliyuncs.com/APK/behalo-kdg-3.2.apk";//园长
 	    }  
 

@@ -40,7 +40,22 @@
 	    } 
 		
 
-	    
+	    function IsWeixinOrAlipay(){
+
+    var ua = window.navigator.userAgent.toLowerCase();
+    //判断是不是微信
+    if ( ua.indexOf("MicroMessenger") > 0 ) {  
+           alert('weixin)
+	    return "WeiXIN";  
+    }    
+    //判断是不是支付宝
+    if ua.indexOf("Alipayclient") > 0'') {
+        return "Alipay";  
+    }
+    //哪个都不是
+    return "false";
+}
+IsWeixinOrAlipay();
 
 
 

@@ -24,6 +24,7 @@
 </head>
 <body>
 <div class="scroll">
+	qqqqqqq
 禁止下拉！<br/>
 禁止下拉！<br/>
 禁止下拉！<br/>
@@ -86,29 +87,33 @@
 是不是可以啊！！！
 是的话
 那就赞赏一下吧！
-<img src="http://wxpad.cn/yunpan/cdn/imgsrc/1519366332.jpg" style="width: 100%;" />
+
 </div>
 </body>
+<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
 <script type="text/javascript">
-    /**
+        /**
  * 禁止浏览器下拉回弹
  */
-	function stopDrop() {
-	    var lastY;//最后一次y坐标点
-	    $(document.body).on('touchstart', function(event) {
-	        lastY = event.originalEvent.changedTouches[0].clientY;//点击屏幕时记录最后一次Y度坐标。
-	    });
-	    $(document.body).on('touchmove', function(event) {
-	        var y = event.originalEvent.changedTouches[0].clientY;
-	        var st = $(this).scrollTop(); //滚动条高度  
-	        if (y >= lastY && st <= 10) {//如果滚动条高度小于0，可以理解为到顶了，且是下拉情况下，阻止touchmove事件。
-	            lastY = y;
-	            event.preventDefault();
-	        }
-	        lastY = y;
-	 
-	    });
-	}
-	stopDrop();
+function stopDrop() {
+    var lastY;//最后一次y坐标点
+    $(document.body).on('touchstart', function(event) {
+        lastY = event.originalEvent.changedTouches[0].clientY;//点击屏幕时记录最后一次Y度坐标。
+    });
+    $(document.body).on('touchmove', function(event) {
+        var y = event.originalEvent.changedTouches[0].clientY;
+        var st = $(this).scrollTop(); //滚动条高度
+        console.log("st = "+st);
+        if (y >= lastY && st <= 0) {//如果滚动条高度小于0，可以理解为到顶了，且是下拉情况下，阻止touchmove事件。
+            lastY = y;
+            event.preventDefault();
+        }
+        lastY = y;
+
+        
+    });
+}
+stopDrop();
 </script>
 </html>

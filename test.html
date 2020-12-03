@@ -1,35 +1,257 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0,viewport-fit=cover">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+  <!--<script type="text/javascript" src="baidu_tts_cors.js"></script>-->
+  <script>
+  	/**
+ * 浏览器调用语音合成接口
+ * @param {Object} param 百度语音合成接口参数
+ * 请参考 https://ai.baidu.com/docs#/TTS-API/41ac79a6
+ * @param {Object} options 跨域调用api参数
+ *           timeout {number} 超时时间 默认不设置为60秒
+ *           volume {number} audio控件音量，范围 0-1
+ *           hidden {boolean} 是否隐藏audio控件
+ *           autoDestory {boolean} 播放音频完毕后是否自动删除控件
+ *           onInit {Function} 创建完audio控件后调用
+ *           onSuccess {Function} 远程语音合成完成，并且返回音频文件后调用
+ *           onError {Function}  远程语音合成完成，并且返回错误字符串后调用
+ *           onTimeout {Function} 超时后调用，默认超时时间为60秒
+ */
+function btts(param, options) {
+    var url = 'http://tsn.baidu.com/text2audio';
+    var opt = options || {};
+    var p = param || {};
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="format-detection" content="telephone=no">
-    <title>qw</title>
-    
-</head>
-<body>
+    // 如果浏览器支持，可以设置autoplay，但是不能兼容所有浏览器
+    var audio = document.createElement('audio');
+    if (opt.autoplay) {
+        audio.setAttribute('autoplay', 'autoplay');
+    }
+
+    // 隐藏控制栏
+    if (!opt.hidden) {
+        audio.setAttribute('controls', 'controls');
+    } else {
+        audio.style.display = 'none';
+    }
+
+    // 设置音量
+    if (typeof opt.volume !== 'undefined') {
+        audio.volume = opt.volume;
+    }
+
+    // 调用onInit回调
+    isFunction(opt.onInit) && opt.onInit(audio);
+
+    // 默认超时时间60秒
+    var DEFAULT_TIMEOUT = 60000;
+    var timeout = opt.timeout || DEFAULT_TIMEOUT;
+
+    // 创建XMLHttpRequest对象
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+
+    // 创建form参数
+    var data = {};
+    for (var p in param) {
+        data[p] = param[p]
+    }
+
+    // 赋值预定义参数
+    data.cuid = data.cuid || data.tok;
+    data.ctp = 1;
+    data.lan = data.lan || 'zh';
+    data.aue = data.aue || 3;
+
+    // 序列化参数列表
+    var fd = [];
+    for(var k in data) {
+        fd.push(k + '=' + encodeURIComponent(data[k]));
+    }
+
+    // 用来处理blob数据
+    var frd = new FileReader();
+    xhr.responseType = 'blob';
+    xhr.send(fd.join('&'));
+
+    // 用timeout可以更兼容的处理兼容超时
+    var timer = setTimeout(function(){
+        xhr.abort();
+        isFunction(opt.onTimeout) && opt.onTimeout();
+    }, timeout);
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            clearTimeout(timer);
+            if (xhr.status == 200) {
+                if (xhr.response.type === 'audio/mp3') {
+
+                    // 在body元素下apppend音频控件
+                    document.body.appendChild(audio);
+
+                    audio.setAttribute('src', URL.createObjectURL(xhr.response));
+
+                    // autoDestory设置则播放完后移除audio的dom对象
+                    if (opt.autoDestory) {
+                        audio.onended = function() {
+                            document.body.removeChild(audio);
+                        }
+                    }
+
+                    isFunction(opt.onSuccess) && opt.onSuccess(audio);
+                }
+
+                // 用来处理错误
+                if (xhr.response.type === 'application/json') {
+                    frd.onload = function(){
+                        var text = frd.result;
+                        isFunction(opt.onError) && opt.onError(text);
+                    };
+                    frd.readAsText(xhr.response);
+                }
+            }
+        }
+    }
+
+    // 判断是否是函数
+    function isFunction(obj) {
+        if (Object.prototype.toString.call(obj) === '[object Function]') {
+            return true;
+        }
+        return false;
+    }
+}
+  </script>
+  <script type="text/javascript">
+//	Ll3V4VbKUNQ0oaK3PU7qkwbN
+
+//F3fc0Fr2oxdXco8DZVhcZat5qVUdPXgS
+
+//token  25.b95cca457d604e8edc3ffefeff7c2a07.315360000.1922333494.282335-23088747
 
 
 
-<script type="text/javascript">
-     //语音播报
-function voiceAnnouncements(str){
-    // 百度语音合成：或者使用新版地址https://tsn.baidu.com/text2audio
-    var url = "http://tts.baidu.com/text2audio?lan=zh&ie=UTF-8&spd=5&text=" + encodeURI(str);
-    var n = new Audio(url);
-    n.src = url;
-    n.play();
-};
-voiceAnnouncements(`
-秋名山上路人稀，常有车手较高低；
+
+
+    // 初始化变量
+    var audio = null;
+    var playBtn = null;
+
+    // dom加载完毕回调后注册按钮对象
+    ready(function() {
+        playBtn = document.getElementById('playBtn');
+    });
+
+    // 合成按钮
+    function tts() {
+        let text = document.getElementById('text').value;
+        playBtn.innerText = '准备中';
+
+        // 调用语音合成接口
+        // 参数含义请参考 https://ai.baidu.com/docs#/TTS-API/41ac79a6
+        audio = btts({
+            tex: `秋名山上路人稀，常有车手较高低；
 如今车道依旧在，不见当年老司机。
 司机车技今尚好，前端群里不寂寥；
-向天再借五百年，誓言各行领风骚。
-`);
-</script>
+向天再借五百年，誓言各行领风骚。`,
+            tok: '25.b95cca457d604e8edc3ffefeff7c2a07.315360000.1922333494.282335-23088747',
+            spd: 5,
+            pit: 5,
+            vol: 15,
+            per: 4
+        }, {
+            volume: 0.3,
+            autoDestory: true,
+            timeout: 10000,
+            hidden: false,
+            onInit: function (htmlAudioElement) {
+
+            },
+            onSuccess: function(htmlAudioElement) {
+                audio = htmlAudioElement;
+                playBtn.innerText = '播放';
+                play();
+                
+            },
+            onError: function(text) {
+                alert(text)
+            },
+            onTimeout: function () {
+                alert('timeout')
+            }
+        });
+    }
+
+    // 播放按钮
+    function play() {
+        if (audio === null) {
+            alert('请先点击合成')
+        } else {
+            audio.play();
+        }
+    }
+
+    // 暂停按钮
+    function pause() {
+        if (audio === null) {
+            alert('请先点击合成')
+        } else {
+            audio.pause();
+        }
+    }
+
+    // 取消按钮
+    function cancel() {
+        if (audio === null) {
+            alert('请先点击合成')
+        } else {
+            audio.pause();
+            document.body.removeChild(audio);
+            audio = null;
+            playBtn.innerText = '准备中';
+        }
+    }
+
+    // dom加载完毕回调
+    function ready(callback){
+        var doc = document;
+        if (doc.addEventListener) {
+            doc.addEventListener('DOMContentLoaded', function() {
+                callback();
+                tts();
+            }, false);
+        } else if (doc.attachEvent) {
+            doc.attachEvent('onreadystatechange', function() {
+                if (doc.readyState === 'complete') {
+                    callback();
+                    tts();
+                }
+            });
+        }
+    }
+  </script>
+</head>
+<body>
+    <div style="opacity: 0;">
+        <input type="text" id='text' value='秋名山上路人稀，常有车手较高低；
+如今车道依旧在，不见当年老司机。
+司机车技今尚好，前端群里不寂寥；
+向天再借五百年，誓言各行领风骚。' style='width: 500px;'>
+        <button onclick='tts()'>合成</button>
+        <button onclick='play()' id='playBtn'>准备中</button>
+        <button onclick='pause()'>暂停</button>
+        <button onclick='cancel()'>取消</button>
+    </div>
+    
+    <button onclick='play()' id='playBtn'>播放</button>
+    
+    <script>
+    		window.onload=function (){
+    			//tts();
+    		}
+    </script>
+</body>
 </html>
